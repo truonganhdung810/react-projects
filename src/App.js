@@ -1,49 +1,55 @@
-import { useState } from "react";
-import "./App.css";
+import { useState } from 'react'
+import './App.css'
 
 function App() {
-  const [listCongViec, setListCongViec] = useState([]);
-  const [inputValue, setInputValue] = useState("");
-  const [isEditing, setIsEditing] = useState(false);
-  const [editValue, setEditValue] = useState("");
-  const [editingIndex, setEditingIndex] = useState(null);
+  const [listCongViec, setListCongViec] = useState([])
+  const [inputValue, setInputValue] = useState('')
+  const [isEditing, setIsEditing] = useState(false)
+  const [editValue, setEditValue] = useState('')
+  const [editingIndex, setEditingIndex] = useState(null)
 
   const submitCongViec = (event) => {
-    event.preventDefault();
-    console.log("Dữ liệu nhập:", inputValue);
+    event.preventDefault()
+    console.log('Dữ liệu nhập:', inputValue)
     if (inputValue.trim()) {
-      setListCongViec([...listCongViec, inputValue]); // Thêm phần tử mới vào mảng
-      setInputValue(""); // Xóa input sau khi thêm
+      setListCongViec([...listCongViec, inputValue]) // Thêm phần tử mới vào mảng
+      setInputValue('') // Xóa input sau khi thêm
     }
-  };
+  }
 
   const deleteItem = (index) => {
-    console.log(index);
-    setListCongViec(listCongViec.filter((_, i) => i !== index)); // Xóa phần tử tại index
-  };
+    console.log(index)
+    setListCongViec(listCongViec.filter((_, i) => i !== index)) // Xóa phần tử tại index
+  }
 
   const editItem = (index) => {
-    setIsEditing(true);
-    setEditingIndex(index);
-  };
+    setEditValue(listCongViec[index])
+    setIsEditing(true)
+    setEditingIndex(index)
+  }
 
   // Bắt đầu chỉnh sửa
   const handleEditStart = (index, value) => {
-    setEditingIndex(index);
-    setEditValue(value);
-  };
+    setEditingIndex(index)
+    setEditValue(value)
+  }
 
   // Lưu chỉnh sửa
   const handleEditSave = (event) => {
-    event.preventDefault();
+    event.preventDefault()
     if (editValue.trim()) {
-      setIsEditing(false);
-      const updatedItems = [...listCongViec];
-      updatedItems[editingIndex] = editValue;
-      setListCongViec(updatedItems);
+      setIsEditing(false)
+      const updatedItems = [...listCongViec]
+      updatedItems[editingIndex] = editValue
+      setListCongViec(updatedItems)
     }
-    setEditingIndex(null); // Thoát chế độ chỉnh sửa
-  };
+    setEditingIndex(null) // Thoát chế độ chỉnh sửa
+  }
+
+  const setCancelEdit = (index) => {
+    setIsEditing(false)
+    setEditingIndex(null)
+  }
 
   return (
     <div className="App">
@@ -53,60 +59,77 @@ function App() {
         inputValue={inputValue}
         setInputValue={setInputValue}
       ></ToDoForm>
-
-      <div className="custom-list">
-        {listCongViec.map((item, index) => (
-          <ToDoItem
-            key={index}
-            index={index + 1}
-            work={item}
-            deleteItem={deleteItem}
-            isEditing={isEditing}
-            editItem={editItem}
-            editValue={editValue}
-            setEditValue={setEditValue}
-            handleEditSave={handleEditSave}
-          ></ToDoItem>
-        ))}
-      </div>
+      {listCongViec.length !== 0 ? (
+        <div className="custom-list">
+          {listCongViec.map((item, index) => (
+            <ToDoItem
+              key={index}
+              index={index}
+              work={item}
+              deleteItem={deleteItem}
+              isEditing={isEditing}
+              editItem={editItem}
+              editValue={editValue}
+              setEditValue={setEditValue}
+              editingIndex={editingIndex}
+              handleEditSave={handleEditSave}
+              setCancelEdit={setCancelEdit}
+            ></ToDoItem>
+          ))}
+        </div>
+      ) : (
+        <div></div>
+      )}
     </div>
-  );
+  )
 }
 
 function ToDoItem(props) {
   return (
     <div className="todo-item">
-      {props.isEditing === false ? (
-        <span className="todo-work">{props.index + ". " + props.work}</span>
+      {props.isEditing === false || props.editingIndex !== props.index ? (
+        <div className="todo-item">
+          <span className="todo-work">{props.index + '. ' + props.work}</span>
+          <div className="button-group">
+            <button
+              className="edit-btn"
+              onClick={() => props.editItem(props.index)}
+            >
+              Edit
+            </button>
+            <button
+              className="delete-btn"
+              onClick={() => props.deleteItem(props.index)}
+            >
+              Delete
+            </button>
+          </div>
+        </div>
       ) : (
-        <form onSubmit={props.handleEditSave}>
+        <form className="edit-item" onSubmit={props.handleEditSave}>
           <input
             type="text"
-            placeholder={props.work}
             value={props.editValue}
             onChange={(e) => props.setEditValue(e.target.value)}
             autoFocus
-            style={{ marginRight: "10px", padding: "10px", fontSize: "large" }}
+            style={{ padding: '10px', fontSize: 'large' }}
           />
-          <button type="submit">Save</button>
+          <div className="button-group">
+            <button className="edit-btn" type="submit">
+              Save
+            </button>
+            <button
+              className="cancel-btn"
+              type="button"
+              onClick={() => props.setCancelEdit(props.editingIndex)}
+            >
+              Cancel
+            </button>
+          </div>
         </form>
       )}
-      <div className="button-group">
-        <button
-          className="edit-btn"
-          onClick={() => props.editItem(props.index - 1)}
-        >
-          Edit
-        </button>
-        <button
-          className="delete-btn"
-          onClick={() => props.deleteItem(props.index - 1)}
-        >
-          Delete
-        </button>
-      </div>
     </div>
-  );
+  )
 }
 
 function ToDoForm(props) {
@@ -123,7 +146,7 @@ function ToDoForm(props) {
         Submit
       </button>
     </form>
-  );
+  )
 }
 
-export default App;
+export default App
